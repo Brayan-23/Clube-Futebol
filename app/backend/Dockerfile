@@ -2,11 +2,13 @@
 
  WORKDIR /app-backend
 
- COPY . /app-backend/
+ COPY . .
 
  EXPOSE 3001
 
  RUN npm install
 
- ENTRYPOINT ["npm", "start"]
+ ENTRYPOINT ["npm", "run"]
+
+ CMD ["start"];
 #  ...

@@ -1,4 +1,7 @@
+import 'express-async-errors';
 import * as express from 'express';
+import httpErrorMiddleware from './middlewares/middlewareError';
+import loginRouter from './routers/loginRouter';
 
 class App {
   public app: express.Express;
@@ -7,9 +10,14 @@ class App {
     this.app = express();
 
     this.config();
-
+    this.routes();
     // Não remover essa rota
     this.app.get('/', (req, res) => res.json({ ok: true }));
+    this.app.use(httpErrorMiddleware);
+  }
+
+  private routes():void {
+    this.app.use('/login', loginRouter);
   }
 
   private config():void {
@@ -25,7 +33,7 @@ class App {
   }
 
   public start(PORT: string | number):void {
-    this.app.listen(PORT, () => console.log(`Running on port ${PORT}`));
+    this.app.listen(PORT, () => console.log(`Runing on port ${PORT}`));
   }
 }
 

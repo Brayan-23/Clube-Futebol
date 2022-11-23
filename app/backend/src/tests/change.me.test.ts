@@ -41,7 +41,15 @@ describe('Seu teste', () => {
   //   expect(...)
   // });
 
-  it('Seu sub-teste', () => {
-    expect(false).to.be.eq(true);
+  it('Teste de login', async () => {
+    let chaiHttpResponse: Response;
+
+    chaiHttpResponse = await chai.request(app).post('/login').send({
+      email: 'admin@admin.com',
+      password: '$2a$08$xi.Hxk1czAO0nZR..B393u10aED0RQ1N3PAEXQ7HxtLjKPEZBu.PW'
+    });
+
+    expect(chaiHttpResponse.status).to.be.equal(200);
+    
   });
 });
