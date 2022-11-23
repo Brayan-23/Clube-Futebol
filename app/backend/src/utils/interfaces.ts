@@ -3,3 +3,11 @@ export default interface ILogin {
   password: string;
   id?: number
 }
+
+export interface IUserMock {
+  id: number;
+  username: string;
+  role: string;
+  email: string
+  password: string;
+}

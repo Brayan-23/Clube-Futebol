@@ -1,12 +1,15 @@
 import * as sinon from 'sinon';
 import * as chai from 'chai';
 // @ts-ignore
-import chaiHttp = require('chai-http');
+import chaiHttp from 'chai-http';
+import * as bcrypt from 'bcryptjs';
 
 import App from '../app';
-import Example from '../database/models/ExampleModel';
+import User from '../database/models/UserModel';
+import {userMock} from './mocks/userMock.mock';
 
 import { Response } from 'superagent';
+
 
 chai.use(chaiHttp);
 
@@ -14,42 +17,24 @@ const { app } = new App();
 
 const { expect } = chai;
 
-describe('Seu teste', () => {
-  /**
-   * Exemplo do uso de stubs com tipos
-   */
+describe('Testes refetes ao login', () => {
+  let chaiHttpResponse: Response;
+    it('Login successfully', async () => {
+      sinon.stub(User, 'findOne').resolves(userMock as User);
+      sinon.stub(bcrypt, 'compareSync').returns(true);
 
-  // let chaiHttpResponse: Response;
+      chaiHttpResponse = await chai
+        .request(app)
+        .post('/login')
+        .send({
+          "email": "admin@admin.com",
+          "password": "secret_admin"
+        });
 
-  // before(async () => {
-  //   sinon
-  //     .stub(Example, "findOne")
-  //     .resolves({
-  //       ...<Seu mock>
-  //     } as Example);
-  // });
+      expect(chaiHttpResponse.status).to.be.equal(200);
 
-  // after(()=>{
-  //   (Example.findOne as sinon.SinonStub).restore();
-  // })
-
-  // it('...', async () => {
-  //   chaiHttpResponse = await chai
-  //      .request(app)
-  //      ...
-
-  //   expect(...)
-  // });
-
-  it('Teste de login', async () => {
-    let chaiHttpResponse: Response;
-
-    chaiHttpResponse = await chai.request(app).post('/login').send({
-      email: 'admin@admin.com',
-      password: '$2a$08$xi.Hxk1czAO0nZR..B393u10aED0RQ1N3PAEXQ7HxtLjKPEZBu.PW'
+/*       (User.findOne as sinon.SinonStub).restore();
+      (bcrypt.compare as sinon.SinonStub).restore(); */
     });
-
-    expect(chaiHttpResponse.status).to.be.equal(200);
-    
   });
-});
+
