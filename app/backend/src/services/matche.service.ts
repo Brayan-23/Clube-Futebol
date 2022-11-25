@@ -13,4 +13,17 @@ export default class MaService {
       );
     return games;
   }
+
+  static async getInProgress(inProgress: string): Promise<Matche[]> {
+    const result = inProgress === 'true';
+    const progress = await Matche.findAll(
+      {
+        where: { inProgress: result },
+        include: [{ model: Team, as: 'teamHome', attributes: { exclude: ['id'] } },
+          { model: Team, as: 'teamAway', attributes: { exclude: ['id'] } }],
+      },
+    );
+    console.log(progress);
+    return progress;
+  }
 }
