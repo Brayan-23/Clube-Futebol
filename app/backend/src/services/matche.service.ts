@@ -3,7 +3,7 @@
 import Team from '../database/models/TeamModel';
 import Matche from '../database/models/matchesModel';
 
-export default class MaService {
+export default class MatchService {
   static async getMatches(): Promise<Matche[]> {
     const games = await Matche
       .findAll(
@@ -23,7 +23,6 @@ export default class MaService {
           { model: Team, as: 'teamAway', attributes: { exclude: ['id'] } }],
       },
     );
-    console.log(progress);
     return progress;
   }
 }
