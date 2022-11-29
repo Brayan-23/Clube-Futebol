@@ -37,4 +37,8 @@ export default class MatchService {
 
     return result;
   }
+
+  static async update(id: number): Promise<void> {
+    await Matche.update({ inProgress: false }, { where: { id } });
+  }
 }

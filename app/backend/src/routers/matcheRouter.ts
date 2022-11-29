@@ -3,6 +3,7 @@ import tokenValidation from '../middlewares/tokenValidation';
 import MatcheController from '../controllers/matche.controller';
 
 const matcheRouter = express.Router();
+matcheRouter.patch('/:id/finish', (req, res) => MatcheController.update(req, res));
 matcheRouter.get('/', (req, res) => MatcheController.getMatches(req, res));
 matcheRouter.post('/', tokenValidation, (req, res) => MatcheController.insert(req, res));
 
