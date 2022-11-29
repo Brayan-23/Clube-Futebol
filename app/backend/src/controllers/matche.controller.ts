@@ -29,4 +29,11 @@ export default class MatcheController {
     await MatcheService.update(Number(id));
     return res.status(200).json({ message: 'finished' });
   }
+
+  static async updateId(req: Request, res: Response) {
+    const { id } = req.params;
+    const { homeTeamGoals, awayTeamGoals } = req.body;
+    await MatcheService.updateId(homeTeamGoals, awayTeamGoals, Number(id));
+    return res.status(200).json({ message: 'Atualizado com Sucesso' });
+  }
 }
