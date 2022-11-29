@@ -19,7 +19,7 @@ export default class Token {
       const data = verify(token, process.env.JWT_SECRET as string);
       return data as JwtPayload;
     } catch (err) {
-      throw new HttpException(401, 'Expired or invalid Token');
+      throw new HttpException(401, 'Token must be a valid token');
     }
   }
 }
