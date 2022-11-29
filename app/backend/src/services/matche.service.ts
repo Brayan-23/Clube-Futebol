@@ -33,9 +33,16 @@ export default class MatchService {
     homeTeamGoals: number,
     awayTeamGoals: number,
   ): Promise<Matche> {
+    const home = await Team.findOne({ where: { id: homeTeam } });
+    const away = await Team.findOne({ where: { id: awayTeam } });
+    console.log(home);
     if (homeTeam === awayTeam) {
       throw new HttpException(422, 'It is not possible to create a match with two equal teams');
     }
+    if (home === null || away === null) {
+      throw new HttpException(404, 'There is no team with such id!');
+    }
+
     const result = await Matche
       .create({ homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress: true });
 
