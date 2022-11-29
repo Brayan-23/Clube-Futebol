@@ -25,4 +25,16 @@ export default class MatchService {
     );
     return progress;
   }
+
+  static async insert(
+    homeTeam: number,
+    awayTeam: number,
+    homeTeamGoals: number,
+    awayTeamGoals: number,
+  ): Promise<Matche> {
+    const result = await Matche
+      .create({ homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress: true });
+
+    return result;
+  }
 }
