@@ -1,5 +1,6 @@
 /* import HttpException from '../utils/Error'; */
 /* import Token from '../utils/token.util'; */
+import HttpException from '../utils/Error';
 import Team from '../database/models/TeamModel';
 import Matche from '../database/models/matchesModel';
 
@@ -32,6 +33,9 @@ export default class MatchService {
     homeTeamGoals: number,
     awayTeamGoals: number,
   ): Promise<Matche> {
+    if (homeTeam === awayTeam) {
+      throw new HttpException(422, 'It is not possible to create a match with two equal teams');
+    }
     const result = await Matche
       .create({ homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress: true });
 
