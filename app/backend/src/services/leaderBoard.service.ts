@@ -3,7 +3,16 @@ import Matche from '../database/models/matchesModel';
 import { ILeaderBoard, ITeam, ITeamComplete } from '../utils/interfaces';
 
 export default class BoardService {
-  private static async generateBoard(): Promise<ITeam[]> {
+  private static async generateBoard(jogo: string): Promise<ITeam[]> {
+    if (jogo === 'away') {
+      const games = await Matche
+        .findAll(
+          { include: [{ model: Team, as: 'teamAway', attributes: { exclude: ['id'] } }],
+            where: { inProgress: false },
+          },
+        );
+      return games;
+    }
     const games = await Matche
       .findAll(
         { include: [{ model: Team, as: 'teamHome', attributes: { exclude: ['id'] } }],
@@ -13,15 +22,19 @@ export default class BoardService {
     return games;
   }
 
-  private static async teams(id: number) {
-    const jogos = await BoardService.generateBoard();
+  private static async teams(id: number, jogo: string) {
+    const jogos = await BoardService.generateBoard(jogo);
+    if (jogo === 'away') {
+      const filtro = jogos.filter((elem) => elem.awayTeam === id);
+      return filtro;
+    }
     const filtro = jogos.filter((elem) => elem.homeTeam === id);
     return filtro;
   }
 
-  static async getLeaderBoard(): Promise<ILeaderBoard[]> {
+  static async getLeaderBoard(jogo: string): Promise<ILeaderBoard[]> {
     const setResult = new Set();
-    const leaderHome = await BoardService.returnValue();
+    const leaderHome = await BoardService.returnValue(jogo);
 
     const boardLeader = leaderHome.filter((item) => {
       const duplicatedTeam = setResult.has(item.name);
@@ -41,8 +54,13 @@ export default class BoardService {
     });
   }
 
-  private static points(obj: ITeam[]) {
+  private static points(obj: ITeam[], jogo: string) {
     const result = obj.reduce((acc, curr) => {
+      if (jogo === 'away') {
+        if (curr.awayTeamGoals > curr.homeTeamGoals) return acc + 3;
+        if (curr.awayTeamGoals === curr.homeTeamGoals) return acc + 1;
+        return acc;
+      }
       if (curr.homeTeamGoals > curr.awayTeamGoals) return acc + 3;
       if (curr.homeTeamGoals === curr.awayTeamGoals) return acc + 1;
       return acc;
@@ -50,7 +68,17 @@ export default class BoardService {
     return result;
   }
 
-  private static victoriesAndDraws(obj: ITeam[], matches: string) {
+  private static victoriesAway(obj: ITeam[], matches: string) {
+    const result = obj.reduce((acc, curr) => {
+      if (curr.awayTeamGoals > curr.homeTeamGoals && matches === 'vitorias') return acc + 1;
+      if (curr.homeTeamGoals === curr.awayTeamGoals && matches === 'empates') return acc + 1;
+      if (curr.homeTeamGoals > curr.awayTeamGoals && matches === 'derrotas') return acc + 1;
+      return acc;
+    }, 0);
+    return result;
+  }
+
+  private static victoriesHome(obj: ITeam[], matches: string) {
     const result = obj.reduce((acc, curr) => {
       if (curr.homeTeamGoals > curr.awayTeamGoals && matches === 'vitorias') return acc + 1;
       if (curr.awayTeamGoals === curr.homeTeamGoals && matches === 'empates') return acc + 1;
@@ -60,7 +88,14 @@ export default class BoardService {
     return result;
   }
 
-  private static goals(obj: ITeam[], matches = '') {
+  private static goals(obj: ITeam[], jogo: string, matches = '') {
+    if (jogo === 'away') {
+      const goalsFavor = obj.reduce((acc, curr) => acc + curr.awayTeamGoals, 0);
+      const goalsOwn = obj.reduce((acc, curr) => acc + curr.homeTeamGoals, 0);
+      if (matches === 'goalsFavor') return goalsFavor;
+      if (matches === 'goalsOwn') return goalsOwn;
+      return goalsFavor - goalsOwn;
+    }
     const goalsFavor = obj.reduce((acc, curr) => acc + curr.homeTeamGoals, 0);
     const goalsOwn = obj.reduce((acc, curr) => acc + curr.awayTeamGoals, 0);
     if (matches === 'goalsFavor') return goalsFavor;
@@ -68,28 +103,34 @@ export default class BoardService {
     return goalsFavor - goalsOwn;
   }
 
-  private static async board(objResult: ITeamComplete) {
-    const teams = await BoardService.teams(objResult.homeTeam);
-    const teste = BoardService.points(teams) / (teams.length * 3);
+  private static victoriesAwayAndHome(obj: ITeam[], jogo: string, matches: string) {
+    return jogo === 'away' ? BoardService.victoriesAway(obj, matches)
+      : BoardService.victoriesHome(obj, matches);
+  }
+
+  private static async board(objResult: ITeamComplete, jogo: string) {
+    const teams = jogo === 'away' ? await BoardService.teams(objResult.awayTeam, jogo)
+      : await BoardService.teams(objResult.homeTeam, jogo);
+    const teste = BoardService.points(teams, jogo) / (teams.length * 3);
     const obj = {
-      name: objResult.teamHome.teamName,
-      totalPoints: BoardService.points(teams),
+      name: jogo === 'away' ? objResult.teamAway.teamName : objResult.teamHome.teamName,
+      totalPoints: BoardService.points(teams, jogo),
       totalGames: teams.length,
-      totalVictories: BoardService.victoriesAndDraws(teams, 'vitorias'),
-      totalDraws: BoardService.victoriesAndDraws(teams, 'empates'),
-      totalLosses: BoardService.victoriesAndDraws(teams, 'derrotas'),
-      goalsFavor: BoardService.goals(teams, 'goalsFavor'),
-      goalsOwn: BoardService.goals(teams, 'goalsOwn'),
-      goalsBalance: BoardService.goals(teams),
+      totalVictories: BoardService.victoriesAwayAndHome(teams, jogo, 'vitorias'),
+      totalDraws: BoardService.victoriesAwayAndHome(teams, jogo, 'empates'),
+      totalLosses: BoardService.victoriesAwayAndHome(teams, jogo, 'derrotas'),
+      goalsFavor: BoardService.goals(teams, jogo, 'goalsFavor'),
+      goalsOwn: BoardService.goals(teams, jogo, 'goalsOwn'),
+      goalsBalance: BoardService.goals(teams, jogo),
       efficiency: (teste * 100).toFixed(2),
     };
     return obj;
   }
 
-  private static async returnValue() {
-    const jogos = await this.generateBoard();
+  private static async returnValue(jogo: string) {
+    const jogos = await this.generateBoard(jogo);
     const map = jogos.map(async (elem) => {
-      const response = await BoardService.board(elem as ITeamComplete);
+      const response = await BoardService.board(elem as ITeamComplete, jogo);
       return response;
     });
     const promise = await Promise.all(map);
