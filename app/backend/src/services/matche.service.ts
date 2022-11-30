@@ -35,7 +35,6 @@ export default class MatchService {
   ): Promise<Matche> {
     const home = await Team.findOne({ where: { id: homeTeam } });
     const away = await Team.findOne({ where: { id: awayTeam } });
-    console.log(home);
     if (homeTeam === awayTeam) {
       throw new HttpException(422, 'It is not possible to create a match with two equal teams');
     }
