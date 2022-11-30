@@ -18,6 +18,9 @@ export interface ITeam {
   homeTeamGoals: number;
   awayTeam: number;
   awayTeamGoals: number;
+}
+
+export interface ITeamComplete extends ITeam {
   inProgress: boolean;
   teamHome: {
     teamName: string;
@@ -25,4 +28,16 @@ export interface ITeam {
   teamAway: {
     teamName: string;
   };
+}
+export interface ILeaderBoard {
+  name: string;
+  totalPoints: number;
+  totalGames: number;
+  totalVictories: number;
+  totalDraws: number;
+  totalLosses: number;
+  goalsFavor: number;
+  goalsOwn: number;
+  goalsBalance: number;
+  efficiency: string;
 }
