@@ -61,7 +61,7 @@ describe('Testes refetes ao login', () => {
     describe('Validation do Token', () => {
       it('Login com token correto', async () => {
         const token = {
-          authorization: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImlkIjoxLCJpYXQiOjE2NjkzOTg5MDksImV4cCI6MTY2OTQ4NTMwOX0.uWwq79vuBzN-4amiV8LotjI9CtR5d8qiUuY19Cea4xw',
+          authorization: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImlkIjoxLCJpYXQiOjE2Njk4NDQ1NzEsImV4cCI6MTY2OTkzMDk3MX0.-VX3o1RVIHFTggTwhZ32OdATFF82cGcNgxG-sWLUwIY',
         }
         chaiHttpResponse = await chai
           .request(app)

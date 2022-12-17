@@ -59,7 +59,7 @@ describe('Testes referentes a model Team', () => {
      })
 
      expect(chaiHttpResponse.status).to.be.equal(200);
-     (Matche.create as sinon.SinonStub).restore();
      (Team.findOne as sinon.SinonStub).restore();
+     (Matche.create as sinon.SinonStub).restore();
  });
 });

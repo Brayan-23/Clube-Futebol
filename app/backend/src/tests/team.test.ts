@@ -2,7 +2,6 @@ import * as sinon from 'sinon';
 import * as chai from 'chai';
 // @ts-ignore
 import chaiHttp = require('chai-http');
-import * as bcrypt from 'bcryptjs';
 
 import App from '../app';
 import Team from '../database/models/TeamModel';
@@ -15,6 +14,7 @@ const { app } = new App();
 
 const { expect } = chai;
 
+
 describe('Testes referentes a Teams', () => {
 let reponse: Response;
 
@@ -23,20 +23,19 @@ it('Testa o sucesso da função getTemns', async () => {
 
     reponse = await chai
     .request(app)
-    .get('/teams')
+    .get('/teams');
 
-    expect(reponse.status).to.be.equal(200)
+    expect(reponse.status).to.be.equal(200);
+    (Team.findAll as sinon.SinonStub).restore();
 });
 it('Testa o sucesso da função findById', async () => {
     sinon.stub(Team, 'findOne').resolves(teamMock[0] as any)
 
     reponse = await chai
     .request(app)
-    .get('/teams/:id')
-    .set({
-        id: 1
-    })
-
-    expect(reponse.status).to.be.equal(200)
+    .get('/teams/1')
+   
+    expect(reponse.status).to.be.equal(200);
+    (Team.findOne as sinon.SinonStub).restore();
 });
 });
