@@ -40,7 +40,7 @@ Link da aplicação funcionando: https://cooperative-knife-production.up.railway
 - *Clonar o repositório:*
 
 ```
-$ git clone 
+$ git clone git@github.com:Brayan-23/Clube-Futebol.git
 ```
 
 - *Acessar o projeto trybe-Futebol-Clube:*
